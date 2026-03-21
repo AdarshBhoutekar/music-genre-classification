@@ -17,7 +17,7 @@ This project focuses on classifying music into different genres using Deep Learn
 
 ## Dataset
 
-* **GTZAN Dataset**
+* **GTZAN Dataset** ([Download on Kaggle](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification))
 
   * 10 genres (Pop, Rock, Jazz, Classical, etc.)
   * 100 audio files per genre
