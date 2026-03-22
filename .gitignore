@@ -11,6 +11,7 @@ __pycache__/
 # Virtual Environments
 venv/
 env/
+.venv
 
 # OS/IDE settings
 .vscode/
