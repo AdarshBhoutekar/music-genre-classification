@@ -1,8 +1,9 @@
-tensorflow>=2.10.0
-librosa==0.11.0
-matplotlib==3.10.8
-numpy==1.26.4
-pandas==2.3.3
-scikit-learn==1.7.2
+tensorflow
+librosa
+matplotlib
+numpy
+pandas
+scikit-learn
 ipython
 seaborn
+streamlit
