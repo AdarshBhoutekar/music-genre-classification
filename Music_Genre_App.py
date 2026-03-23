@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 
 #Function
 def load_model():
-    model = tf.keras.models.load_model('model.keras', compile=False)
+    model = tf.keras.models.load_model('Trained_model.h5', compile=False)
 
     return model
 
@@ -57,7 +57,7 @@ def model_prediction(X_test):
 ## Streamlit UI
 st.sidebar.title("Dashboard")
 
-app_mode = st.sidebar.selectbox("Select Page",["Home", "About", "Project", "Prediction"] )
+app_mode = st.sidebar.selectbox("Select Page",["Home", "About", "Prediction"] )
 
 # Main Page
 if( app_mode == "Home"):
@@ -85,21 +85,43 @@ Click on the **Genre Classification** page in the sidebar to upload an audio fil
 Learn more about the project, our team, and our mission on the **About** page.
     ''')
 
-    ## Project
 elif app_mode == "About":
-    st.markdown('''
-    ### About Project
-                Music. Experts have been trying for a long time to understand sound and what differenciates one song from another. How to visualize sound. What makes a tone different from another.
+    st.markdown("""
+## 🎵 About the Project
 
-                This data hopefully can give the opportunity to do just that.
+Music has always been a fascinating subject for analysis. Researchers have long tried to understand:
 
-                ### About Dataset
-                #### Content
-                1. **genres original** - A collection of 10 genres with 100 audio files each, all having a length of 30 seconds (the famous GTZAN dataset, the MNIST of sounds)
-                2. **List of Genres** - blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, rock
-                3. **images original** - A visual representation for each audio file. One way to classify data is through neural networks. Because NNs (like CNN, what we will be using today) usually take in some sort of image representation, the audio files were converted to Mel Spectrograms to make this possible.
-                4. **2 CSV files** - Containing features of the audio files. One file has for each song (30 seconds long) a mean and variance computed over multiple features that can be extracted from an audio file. The other file has the same structure, but the songs were split before into 3 seconds audio files (this way increasing 10 times the amount of data we fuel into our classification models). With data, more is always better.
-    ''')
+- What differentiates one song from another?
+- How can sound be visualized?
+- What makes tones unique?
+
+This project explores these questions using machine learning and audio data.
+
+---
+
+## About the Dataset
+
+### Content Overview
+
+**1. Genres (Original Audio)**  
+A collection of 10 genres with 100 audio files each.  
+Each audio clip is 30 seconds long.  
+This is the well-known **GTZAN dataset** (often called the *MNIST of audio*).
+
+**2. List of Genres**
+- Blues  
+- Classical  
+- Country  
+- Disco  
+- Hip-hop  
+- Jazz  
+- Metal  
+- Pop  
+- Reggae  
+- Rock  
+""")
+
+
 
     #Prediction Page
 elif app_mode == "Prediction":
@@ -111,13 +133,19 @@ elif app_mode == "Prediction":
 
     #Play Audio button
     if(st.button("Play Audio")):
-        st.audio(test_mp3)
+        if test_mp3 is None:
+            st.warning("Please upload an audio file")
+        else:
+            st.audio(test_mp3)
 
     #Predict btn
     if(st.button("Predict Genre")):
-        with st.spinner("Please wait..."):
-            X_test = load_and_preprocess_file(filepath)
-            result_index = model_prediction(X_test)
-            st.balloons()
-            label = ['blues', 'classical','country','disco','hiphop','jazz','metal','pop','reggae','rock']
+        if test_mp3 is None:
+            st.warning("Please upload an audio file")
+        else:
+            with st.spinner("Please wait..."):
+                X_test = load_and_preprocess_file(filepath)
+                result_index = model_prediction(X_test)
+                st.balloons()
+                label = ['blues', 'classical','country','disco','hiphop','jazz','metal','pop','reggae','rock']
             st.markdown("**:blue[Model Prediction:] It's a  :red[{}] music**".format(label[result_index]))
