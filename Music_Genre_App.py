@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 #Function
 @st.cache_resource
 def load_trained_model():
-    model = tf.keras.models.load_model('Trained_model.h5', compile=False)
+    model = tf.keras.models.load_model('Trained_model.keras', compile=False)
 
     return model
 
