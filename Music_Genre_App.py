@@ -6,7 +6,8 @@ from tensorflow.image import resize
 from tensorflow.keras.models import load_model
 
 #Function
-def load_model():
+@st.cache_resource
+def load_trained_model():
     model = tf.keras.models.load_model('Trained_model.h5', compile=False)
 
     return model
@@ -14,6 +15,7 @@ def load_model():
 # Load and preprocess audio data
 def load_and_preprocess_file(file_path, target_shape=(150, 150)):
     data = []
+    file_path.seek(0)
     audio_data, sample_rate = librosa.load(file_path, sr=None)
     # Perform preprocessing (e.g., convert to Mel spectrogram and resize)
     # Define the duration of each chunk and overlap
@@ -32,13 +34,14 @@ def load_and_preprocess_file(file_path, target_shape=(150, 150)):
                     # Calculate start and end indices of the chunk
         start = i * (chunk_samples - overlap_samples)
         end = start + chunk_samples
-
+        
                     # Extract the chunk of audio
         chunk = audio_data[start:end]
+        if len(chunk) == 0:
+            continue
 
                     # Compute the Mel spectrogram for the chunk
         mel_spectrogram = librosa.feature.melspectrogram(y=chunk, sr=sample_rate)
-
                 #mel_spectrogram = librosa.feature.melspectrogram(y=audio_data, sr=sample_rate)
         mel_spectrogram = resize(np.expand_dims(mel_spectrogram, axis=-1), target_shape)
         data.append(mel_spectrogram)
@@ -46,7 +49,7 @@ def load_and_preprocess_file(file_path, target_shape=(150, 150)):
     return np.array(data)
 
 def model_prediction(X_test):
-    model = load_model();
+    model = load_trained_model()
     y_pred = model.predict(X_test)
     y_pred = np.argmax(y_pred, axis=1)
     unique_elements, counts = np.unique(y_pred, return_counts=True)
@@ -125,27 +128,27 @@ This is the well-known **GTZAN dataset** (often called the *MNIST of audio*).
 
     #Prediction Page
 elif app_mode == "Prediction":
-    st.header("Model Prediction")
-    test_mp3 = st.file_uploader("Upload an Audio File", type=["mp3"])
+    st.header("🎧 Model Prediction")
+
+    test_mp3 = st.file_uploader(
+        "Upload an Audio File", type=["mp3"]
+    )
 
     if test_mp3 is not None:
-        filepath = "Test_music/" + test_mp3.name
+        st.audio(test_mp3)
 
-    #Play Audio button
-    if(st.button("Play Audio")):
-        if test_mp3 is None:
-            st.warning("Please upload an audio file")
-        else:
-            st.audio(test_mp3)
+        if st.button("Predict Genre"):
+            with st.spinner("Processing..."):
 
-    #Predict btn
-    if(st.button("Predict Genre")):
-        if test_mp3 is None:
-            st.warning("Please upload an audio file")
-        else:
-            with st.spinner("Please wait..."):
-                X_test = load_and_preprocess_file(filepath)
-                result_index = model_prediction(X_test)
-                st.balloons()
-                label = ['blues', 'classical','country','disco','hiphop','jazz','metal','pop','reggae','rock']
-            st.markdown("**:blue[Model Prediction:] It's a  :red[{}] music**".format(label[result_index]))
+                X_test = load_and_preprocess_file(test_mp3)
+                if len(X_test) == 0:
+                    st.error("Audio processing failed. Try another file.")
+                else:
+                    result_index = model_prediction(X_test)
+
+                    labels = [
+                        'blues', 'classical','country','disco',
+                        'hiphop','jazz','metal','pop','reggae','rock'
+                    ]
+
+                    st.success(f"🎶 Predicted Genre: {labels[result_index]}")
