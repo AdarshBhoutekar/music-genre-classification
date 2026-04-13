@@ -50,12 +50,13 @@ def load_and_preprocess_file(file_path, target_shape=(150, 150)):
 
 def model_prediction(X_test):
     model = load_trained_model()
-    y_pred = model.predict(X_test)
-    y_pred = np.argmax(y_pred, axis=1)
-    unique_elements, counts = np.unique(y_pred, return_counts=True)
-    max_count = np.max(counts)
-    max_elements = unique_elements[counts == max_count]
-    return max_elements[0]
+    # Get raw probabilities for all chunks
+    probabilities = model.predict(X_test, verbose=0)
+    # Calculate mean confidence across all chunks
+    mean_probabilities = np.mean(probabilities, axis=0)
+    # Final class selection
+    predicted_idx = np.argmax(mean_probabilities)
+    return predicted_idx
 
 ## Streamlit UI
 st.sidebar.title("Dashboard")
